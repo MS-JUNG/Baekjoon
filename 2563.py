@@ -1,6 +1,6 @@
 count = int(input())
 
-paper = [[1 for _ in range(100)] for _ in range(100)]
+paper = [[0 for _ in range(100)] for _ in range(100)]
 
 print(paper)
 for i in range(count):

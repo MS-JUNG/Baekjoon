@@ -12,7 +12,5 @@ while line >= 0:
 
 if room == 1:
     real_line = 1
-
-
-    
+        
 print(real_line)
