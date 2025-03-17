@@ -1,3 +1,56 @@
+import sys 
+
+input = sys.stdin.readline
+
+array = [list(map(int,input().split())) for _ in range(10)]
+length = [1,2,3,4,5]
+count = [5,5,5,5,5]
+
+def check(array,i,j,length):
+    
+    for a in range(length):
+        for b in range(length):
+            if array[i+a][j+b] == 1:
+                pass
+            else:
+                return False
+    
+    return length
+max_ls= []
+score = 0
+def find(p):
+    global score
+    
+    for i in range(10):
+        for j in range(10):
+            if array[i][j] == 1:
+                for k in range(5):
+                    leng = length[k]
+                    if count[k] != 0:
+                        
+                        if check(array,i,j,leng):
+                            count[k] -= 1
+                            array[i:i+leng][j:j+leng] = 0
+            
+                            find(p+1)
+                            count[k] +=1
+                            array[i:i+leng][j:j+leng] = 1
+                        
+                    else:
+                        pass
+            else:
+                max_ls.append(score)
+                
+                    
+            
+            
+    
+    
+find()
+print(min(max_ls))
+
+
+
 def promise(a1, a2, b1, b2): #유망 조건
     for i in range(a1, a2+1):
         for j in range(b1, b2+1):
@@ -29,7 +82,6 @@ def glue(p):
 
 import sys
 paper = [list(map(int, sys.stdin.readline().split())) for _ in range(10)]
-
 confetti = [5, 5, 5, 5, 5]
 result = 26
 glue(0)
