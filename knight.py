@@ -1,6 +1,3 @@
-
-
-
 position = list(input())
 
 row = int(position[1])
