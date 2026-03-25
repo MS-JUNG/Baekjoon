@@ -1,7 +1,5 @@
 word = list(str(input()))
 
-
-
 count = 0
 
 while len(word) != 0:
