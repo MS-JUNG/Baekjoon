@@ -1,15 +1,10 @@
-import sys 
+n = int(input())
+ansList = [0]*n
+ansList[0] = 1
 
-N = int(sys.stdin.readline())
-d = [0]*1001
+if n >= 2:
+    ansList[1] = 2
+    for i in range(2, n):
+        ansList[i] = ansList[i-1] + ansList[i-2]
 
-
-d[1] = 1
-d[2] = 3
-
-
-for i in range(3,N+1):
-    d[i] = d[i-1] + 2*d[i-2]
-    
-    
-print(d[N]%10007)
+print(ansList[n-1] % 10007)

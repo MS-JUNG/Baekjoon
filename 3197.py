@@ -1,78 +1,84 @@
-import sys 
+import sys
 from collections import deque
 
 input = sys.stdin.readline
 
-R, C = map(int,input().strip().split())
-
-target = []
-array = []
-for l in range(R):
-    row = list(input().strip())
-    for i in range(C):
-        if row[i] == 'L':
-            row[i] = 2
-            target.append([l, i])
-        elif row[i] == '.':
-            row[i] = 0
-        elif row[i] == 'X':
-            row[i] = 1
-    array.append(list(map(int, row)))
-
-array[target[1][0]][target[1][1]] = 3
+R, C = map(int, input().split())
+lake = [list(input().strip()) for _ in range(R)]
 
 dx = [0, 0, 1, -1]
 dy = [1, -1, 0, 0]
 
-result = 0
-visited = [[0] * C for _ in range(R)]
-que = deque()
+swans = []
+water_q = deque()
+water_visited = [[False] * C for _ in range(R)]
 
-def move(new_ar, target):
-    que.clear()
-    for i in range(R):
-        for j in range(C):
-            visited[i][j] = 0
-    
-    que.append(target[0])
-    visited[target[0][0]][target[0][1]] = 1
-    
-    while que:
-        pos = que.popleft()
-        
-        for s in range(4):
-            nx = pos[0] + dx[s]
-            ny = pos[1] + dy[s]
-            if 0 <= nx < R and 0 <= ny < C and visited[nx][ny] == 0:
-                visited[nx][ny] = 1
-                if new_ar[nx][ny] == 0:
-                    que.append([nx, ny])
-                if new_ar[nx][ny] == 3:
-                    return True
+for i in range(R):
+    for j in range(C):
+        if lake[i][j] != 'X':
+            water_q.append((i, j))
+            water_visited[i][j] = True
+        if lake[i][j] == 'L':
+            swans.append((i, j))
+
+swan_q = deque()
+next_swan_q = deque()
+swan_visited = [[False] * C for _ in range(R)]
+
+sx, sy = swans[0]
+ex, ey = swans[1]
+
+swan_q.append((sx, sy))
+swan_visited[sx][sy] = True
+
+def move_swan():
+    while swan_q:
+        x, y = swan_q.popleft()
+
+        if (x, y) == (ex, ey):
+            return True
+
+        for d in range(4):
+            nx = x + dx[d]
+            ny = y + dy[d]
+
+            if 0 <= nx < R and 0 <= ny < C and not swan_visited[nx][ny]:
+                swan_visited[nx][ny] = True
+
+                if lake[nx][ny] == 'X':
+                    next_swan_q.append((nx, ny))
+                else:
+                    swan_q.append((nx, ny))
 
     return False
 
-gotit = 0
-while True:
-    # 원본 배열을 인플레이스 업데이트
-    melting = []
-    for k in range(R):
-        for l in range(C):
-            if array[k][l] == 0:
-                for i in range(4):
-                    nx = k + dx[i]
-                    ny = l + dy[i]
-                    if 0 <= nx < R and 0 <= ny < C and array[nx][ny] == 1:
-                        melting.append((nx, ny))
-    
-    # 녹을 부분만 업데이트
-    for nx, ny in melting:
-        array[nx][ny] = 0
+def melt():
+    global water_q
+    next_water_q = deque()
 
-    if move(array, target):
-        gotit = 1
-    
-    result += 1
-    if gotit == 1:
-        print(result)
+    while water_q:
+        x, y = water_q.popleft()
+
+        for d in range(4):
+            nx = x + dx[d]
+            ny = y + dy[d]
+
+            if 0 <= nx < R and 0 <= ny < C and not water_visited[nx][ny]:
+                water_visited[nx][ny] = True
+
+                if lake[nx][ny] == 'X':
+                    lake[nx][ny] = '.'
+                    next_water_q.append((nx, ny))
+
+    water_q = next_water_q
+
+day = 0
+while True:
+    if move_swan():
+        print(day)
         break
+
+    melt()
+    swan_q = next_swan_q
+    next_swan_q = deque()
+    day += 1
