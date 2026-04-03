@@ -14,9 +14,7 @@ def recur(idx,weight):
             
             return  0
         
-        # if weight > K:
-            
-        #     return -999
+
         
         if dp[idx][weight] != -1:
             return dp[idx][weight]  

@@ -1,94 +1,40 @@
-import sys 
+N, M = map(int, input().split())
+arr = [list(map(int, input().split())) for _ in range (N)]
 
-input = sys.stdin.readline
-N, M = map(int,input().strip().split())
-board = [list(map(int,input().strip().split())) for _ in range(N)]
-def rotate_90(matrix):
-    return [list(reversed(col)) for col in zip(*matrix)]
-def rotate_n_times(matrix, n):
-    result = matrix
-    for _ in range(n):
-        result = rotate_90(result)
-    return result
-board = board
-board_90 = rotate_n_times(board,1)
-board_180 = rotate_n_times(board,2)
-board_270 = rotate_n_times(board,3)
+v= [[0] * M for _ in range (N)] # dfs 방문 표시 배열
 
-max_list=[]
+# 각 행에서 최대값을 찾은 뒤, 그 중 전체 배열의 최댓값을 찾음
+mx = max(map(max, arr))
 
-def check_1(board,dir):
-    if dir == 1 or dir == 3:
-       row, col  = M, N
-    else:
-        row, col = N,M
-    max = 0
-    for j in range(row):
-        for i in range(col-3):
-            
-            value = board[j][i] + board[j][i+1] + board[j][i+2] + board[j][i+3]
-            if value >= max:
-                    max = value
-    return max 
-def check_2(board,dir):
-    if dir == 1 or dir == 3:
-       row, col  = M, N
-    else:
-        row, col = N,M
-    max = 0 
-    for j in range(row-1):
-        for i in range(col-1):
-            value = board[j][i] + board[j][i+1] + board[j+1][i] + board[j+1][i+1]
-            if value > max:
-                max = value
-    return max 
-def check_3(board,dir):
-    if dir == 1 or dir == 3:
-       row, col  = M, N
-    else:
-        row, col = N,M
-    max = 0 
-    for j in range(row-1):
-        for i in range(col-2):
-            value = board[j][i] + board[j][i+1] + board[j][i+2] + board[j+1][i+1]
-            if value > max:
-                max = value
-    return max
-def check_4(board,dir):
-    if dir == 1 or dir == 3:
-       row, col  = M, N
-    else:
-        row, col = N,M
-    max = 0 
-    for j in range(row-1):
-        for i in range(col-2):
-            value = board[j][i] + board[j][i+1] + board[j][i+2] + board[j+1][i]
-            value_2 = board[j][i] + board[j][i+1] + board[j][i+2] + board[j+1][i+2]
-            if value > max:
-                max = value
-            if value_2 > max:
-                max = value_2    
-    return max
+dx = [-1,1,0,0]
+dy = [0,0,-1,1]
 
-def check_5(board,dir): 
-    max = 0
-    if dir == 1 or dir == 3:
-       row, col  = M, N
-    else:
-        row, col = N,M
-    for j in range(row-1):
-        for i in range(col-2):
-            value = board[j][i] + board[j][i+1] + board[j+1][i+1] + board[j+1][i+2]
-            value_2 = board[j][i+1] + board[j][i+2] + board[j+1][i] + board[j+1][i+1]
-            if value > max:
-                max = value
-            if value_2 > max:
-                max = value_2
-    return max
+def dfs(n, temp, lst) :
+    global ans
 
-max_list = [check_1(board,0),check_1(board_90,1),check_2(board,0)
-            ,check_3(board,0),check_3(board_90,1),check_3(board_180,2),check_3(board_270,3)
-            ,check_4(board,0),check_4(board_90,1),check_4(board_180,2),check_4(board_270,3)
-            ,check_5(board,0),check_5(board_90,1),check_5(board_180,2),check_5(board_270,3)]
+    # 가지치기
+    if temp + (4-n) * mx <= ans : # 나머지 블럭이 모두 최댓값이어도 현재 ans 값보다 작다면 dfs 순회 정지
+        return
 
-print(max(max_list))
+    # 종료 조건
+    if n == 4 :
+        ans = max(temp, ans)
+        return
+    
+    # 재귀 함수 호출 (자기 위치에서 뻗어나가기, 백트래킹)
+    for cx, cy in lst :
+        for i in range (4) :
+            nx, ny = cx + dx[i], cy + dy[i]
+            # 범위, 방문 검사
+            if 0 <= nx < N and 0<= ny < M and v[nx][ny] == 0 :
+                v[nx][ny] = 1
+                dfs(n+1, temp + arr[nx][ny], lst + [(nx, ny)])
+                v[nx][ny] = 0 # 방문표시 해제로 백트래킹
+
+ans = 0
+for i in range (N) :
+    for j in range (M) :
+        v[i][j] = 1
+        dfs(1, arr[i][j], [(i,j)])
+
+print(ans)
