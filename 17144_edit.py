@@ -51,30 +51,24 @@ def clean(array,a,b):
       
 def move(array):
     new_array = [[0]*C for _ in range(R)]
-    new_array[air_pos[0][0]][air_pos[0][1]],new_array[air_pos[1][0]][air_pos[1][1]] = -1,-1
+    new_array[air_pos[0][0]][air_pos[0][1]] = -1
+    new_array[air_pos[1][0]][air_pos[1][1]] = -1
+
     for i in range(R):
         for j in range(C):
-            if array[i][j]>0:
+            if array[i][j] > 0:
                 count = 0
-                possible = []
-                for ii in range(4):
-                    nx = i+dx[ii]
-                    ny = j+dy[ii]
-                    
-                    if 0<=nx<R and 0<=ny<C:
-                        if array[nx][ny] != -1:
-                            count+=1
-                            possible.append([nx,ny])
-                
-                for po in possible:
-                    
-                    new_array[po[0]][po[1]] += array[i][j]//5
-                    
-                new_array[i][j] = array[i][j] - array[i][j]//5 * count
-                
+                for d in range(4):
+                    nx = i + dx[d]
+                    ny = j + dy[d]
+
+                    if 0 <= nx < R and 0 <= ny < C and array[nx][ny] != -1:
+                        new_array[nx][ny] += array[i][j] // 5
+                        count += 1
+
+                new_array[i][j] += array[i][j] - (array[i][j] // 5) * count
 
     return new_array
-
 for t in range(T):
     new = move(array)
     array = clean(new,air_pos[0][0],air_pos[1][0])

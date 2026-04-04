@@ -1,81 +1,76 @@
-import sys 
+import sys
 
-input = sys.stdin.readline
-R,C,M = map(int,input().strip().split())
+r, c, m = map(int, sys.stdin.readline().rstrip().split())
+# 북 - 남 - 동 - 서                                                                       
+dx = [-1, 1, 0, 0]
+dy = [0, 0, 1, -1]
 
-# x,y,속력,방향,크기
-dx = ['empty',-1,1,0,0]
-dy = ['empty',0,0,1,-1]
-shark = [list(map(int,input().strip().split())) for _ in range(M)]
-for l in shark:
-    ## 인덱스 0부터로 맞춰주기 
-    l[0]-=1
-    l[1]-=1
+# 낚시터 상태
+graph = [[[] for _ in range(c)] for _ in range(r)]
 
-result = 0
-for i in range(C):
-    array = [[[] for _ in range(C)] for _ in range(R)]
-    
-    shark.sort()
-    print(shark)
-    for s in range(len(shark)):
-        
-        if shark[s][1] == i:
-            
-            # shark를 행이 커지는 순으로 sorting해놓았기때문에 열이 일치하는 가장 첫번째 상어를 잡으면 그게 가장 가까운 상어
-            result+=shark[s][4]
-            ka = shark.pop(s)
-            
+for _ in range(m):
+    x, y, s, d, z = map(int, input().split())
+    graph[x - 1][y - 1].append([z, s, d - 1])
+
+
+def move_shark():
+    global graph
+    # 이동한 뒤의 상어 상태를 저장할 배열
+    board = [[[] for _ in range(c)] for _ in range(r)]
+
+    for i in range(r):
+        for j in range(c):
+            if graph[i][j]:
+                x, y = i, j
+                z, s, d = graph[i][j][0]
+                s_count = s
+                while s_count > 0:
+                    nx = x + dx[d]
+                    ny = y + dy[d]
+                    # 범위 벗어나면
+                    if nx < 0 or nx >= r or ny < 0 or ny >= c:
+                        # 방향 바꿔서 다시 이동
+                        if d in [0, 2]:
+                            d += 1
+                        elif d in [1, 3]:
+                            d -= 1
+                        continue
+                    # 범위 안 벗어나면
+                    else:
+                        # 이동
+                        x, y = nx, ny
+                        s_count -= 1
+                # 이동 끝난 상태 저장
+                board[x][y].append([z, s, d])
+
+    # 이동 끝난 상태로 갱신
+    for i in range(r):
+        for j in range(c):
+            graph[i][j] = board[i][j]
+
+
+eat_count = 0
+
+# j(열)이 증가하는 것 자체가 낚시왕이 열을 한 칸씩 이동하는 것과 같음
+for j in range(c):
+    for i in range(r):
+        if len(graph[i][j]) > 0:
+            value = graph[i][j][0]
+            eat_count += value[0]
+            graph[i][j].remove(value)
             break
-    breakpoint()
-    for k in range(len(shark)):
-        x = shark[k][0]
-        y = shark[k][1]
-        d  = shark[k][3]
-        speed = shark[k][2]
-        ## 상어를 속력이 0이 될떄까지 계속해서 1씩 빼면서 최종위치를 구함
-        while speed>0:
-            # print(speed)
-            nx = x+dx[d]
-            ny = y+dy[d]
-            
-            ### 만약 상어가 밖으로 갈려하면 방향만 바꿔주고 speed는 빼지않고 다음 싸이클로 넘어감
-            if nx<0 or nx>=R or ny<0 or ny>=C:
-                if d in [1,3]:
-                    d+=1
-                
-                elif d in [2,4]:
-                    d-=1
-                continue
-            else:
-                x = nx
-                y = ny
-                speed-=1
-        shark[k][3]=d
-        
-        ### 빈 배열에 이동이 끝난 상어를 넣음 
-        array[x][y].append(shark[k][2:])
-
-    shark = []
     
-    ### 새롭게 이동이 끝난 상어를 array에 남김 이때 겹치는 상어는 큰것만 남겨야댐 
-    for row in range(R):
-        for col in range(C):
-            
-            if len(array[row][col])>=2:
-                
-                # 몸무게 순으로 정렬해서 큰것만 상어 리스트에 넣음 
-                array[row][col].sort(key = lambda x:x[2], reverse=True)
-                
-                shark.append([row,col]+array[row][col][0])
-            elif len(array[row][col])==1:
-                
-                # 1개남은건 그대로 상어리스트에 넣음 
-                shark.append([row,col]+array[row][col][0])
-                
-            else:
-                pass
-     
+    # 상어 이동
+    move_shark()
     
+    # 겹치는 상어 제거
+    for p in range(r):
+        for q in range(c):
+            if len(graph[p][q]) > 1:
+                # 상어 무게가 내림차순이 되게 정렬
+                graph[p][q].sort(reverse=True)
+                # 첫번째 상어(젤 무거운 상어) 제외한 나머지 상어 pop
+                while len(graph[p][q]) >= 2:
+                    graph[p][q].pop()
 
-print(result)
+print(eat_count)

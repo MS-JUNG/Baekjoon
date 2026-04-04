@@ -1,48 +1,33 @@
-# import sys 
-# from collections import deque 
- 
-# input = sys.stdin.readline
-# N, M  = map(int,input().strip().split())
+import sys
+from itertools import combinations
 
-# maps = [list(map(int, input().strip().split())) for _ in range(N)]
+input = sys.stdin.readline
 
-# map_information = {}
-# print(maps)
-# map_information['chicken'] = []
-# map_information['city'] = []
-# for i in range(len(maps)):
-#     for j in range(len(maps[0])):
-#         if maps[i][j] == 2:
-#             map_information['chicken'].append([i,j])
-#         if maps[i][j] == 1:
-#             map_information['city'].append([i,j])
+N, M = map(int, input().split())
+city = [list(map(int, input().split())) for _ in range(N)]
 
-# distance_sum = {}
+houses = []
+chickens = []
 
+for i in range(N):
+    for j in range(N):
+        if city[i][j] == 1:
+            houses.append((i, j))
+        elif city[i][j] == 2:
+            chickens.append((i, j))
 
-    
-    
-    
-    
-    
+answer = float('inf')
 
+for selected in combinations(chickens, M):
+    total_distance = 0
 
+    for hx, hy in houses:
+        min_dist = float('inf')
+        for cx, cy in selected:
+            dist = abs(hx - cx) + abs(hy - cy)
+            min_dist = min(min_dist, dist)
+        total_distance += min_dist
 
-# for i in range(len(map_information['city'])):
-#     min = 10000
-#     for j in range(len(map_information['chicken'])):
-        
-#         distance = abs(map_information[i][0]-map_information['chicken'][j][0]) + abs(map_information[i][1]-map_information['chicken'][j][1])
-#         if distance <= min(g)
-        
-    
-    
-    
-    
-    
-    
-# print(map_information)
+    answer = min(answer, total_distance)
 
-
-
-
+print(answer)
